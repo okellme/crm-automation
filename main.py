@@ -4,11 +4,16 @@ def add_lead(leads, name, email, status):
 
 leads = []
 
-name = input("Enter lead name: ")
-email = input("Enter lead email: ")
-status = input("Enter lead status: ")
+while True:
+    name = input("Enter lead name: ")
+    email = input("Enter lead email: ")
+    status = input("Enter lead status: ")
 
-add_lead(leads, name, email, status)
+    add_lead(leads, name, email, status)
+
+    again = input("Add another lead? (yes/no): ")
+    if again != "yes":
+        break
 
 for lead in leads:
     print(f"{lead['name']} - {lead['status']}")
