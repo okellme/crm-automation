@@ -4,8 +4,11 @@ def add_lead(leads, name, email, status):
 
 leads = []
 
-add_lead(leads, "Paul", "paul@email.com", "New")
-add_lead(leads, "Maria", "maria@email.com", "Contacted")
+name = input("Enter lead name: ")
+email = input("Enter lead email: ")
+status = input("Enter lead status: ")
+
+add_lead(leads, name, email, status)
 
 for lead in leads:
     print(f"{lead['name']} - {lead['status']}")
