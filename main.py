@@ -1,6 +1,8 @@
-contacts =["Paul", "Maria", "Jonas"]
+leads = [
+    {"name": "Paul", "email": "Paul@email.com", "status": "active"},
+    {"name": "Maria", "email": "Maria@email.com", "status": "Contracted"},
+]
 
-contacts.remove("Jonas")
+for lead in leads:
+    print(f"{lead['name']} - {lead['status']}")
 
-for contact in contacts:
-    print(f"Lead: {contact}")
