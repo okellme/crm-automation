@@ -42,3 +42,25 @@ while True:
 save_leads(leads, "leads.csv")
 
 print("Leads saved to leads.csv")
+
+
+
+from datetime import datetime
+
+def check_overdue(leads, days_threshold=7):
+    today = datetime.now()
+    overdue_leads = []
+
+    for lead in leads:
+        date_added = datetime.strptime(lead["date_added"], "%Y-%m-%d")
+        days_since_added = (today - date_added).days
+
+        if days_since_added >= days_threshold:
+            overdue_leads.append(lead)
+
+    return overdue_leads
+
+overdue = check_overdue(leads, days_threshold=0)
+print("Overdue leads:")
+for lead in overdue:
+    print(f"{lead['name']} - {lead['date_added']}")
