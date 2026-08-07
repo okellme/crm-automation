@@ -44,9 +44,6 @@ save_leads(leads, "leads.csv")
 print("Leads saved to leads.csv")
 
 
-
-from datetime import datetime
-
 def check_overdue(leads, days_threshold=7):
     today = datetime.now()
     overdue_leads = []
@@ -60,17 +57,13 @@ def check_overdue(leads, days_threshold=7):
 
     return overdue_leads
 
-overdue = check_overdue(leads, days_threshold=0)
-print("Overdue leads:")
-for lead in overdue:
-    print(f"{lead['name']} - {lead['date_added']}")
 
-test_leads = [
-    {"name": "Old Lead", "email": "old@email.com", "status": "new", "date_added": "2026-07-01"},
-    {"name": "Fresh Lead", "email": "fresh@email.com", "status": "new", "date_added": "2026-08-06"}
-]
 
-overdue = check_overdue(test_leads, days_threshold=7)
-print("Overdue leads (7+ days):")
-for lead in overdue:
-    print(f"{lead['name']} - {lead['date_added']}")
+overdue = check_overdue(leads, days_threshold=7)
+
+print("\n--- Leads needing follow-up (7+ days old) ---")
+if overdue:
+    for lead in overdue:
+        print(f"{lead['name']} ({lead['email']}) - added {lead['date_added']}")
+else:
+    print("No overdue leads. You're all caught up!")
