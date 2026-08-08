@@ -110,7 +110,13 @@ while True:
     choice = input("Choose an option: ")
 
     if choice == "1":
-        print("You picked View all leads")
+        leads = get_all_leads_db()
+        print("\n--- All Leads ---")
+        if leads:
+            for lead in leads:
+                print(f"{lead['name']} - {lead['status']} - {lead['date_added']}")
+        else:
+            print("No leads yet.")
     elif choice == "2":
         print("You picked Add a new lead")
     elif choice == "3":
