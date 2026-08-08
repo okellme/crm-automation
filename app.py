@@ -1,6 +1,31 @@
 from flask import Flask, request
 import sqlite3
 from datetime import datetime
+import smtplib
+from email.message import EmailMessage
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
+def send_email(to_address, subject, body):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = to_address
+    msg.set_content(body)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(msg)
+        print(f"Email sent to {to_address}")
+    except Exception as e:
+        print(f"Failed to send email to {to_address}: {e}")
+
+
 
 app = Flask(__name__)
 
@@ -74,8 +99,28 @@ def overdue_route():
             html += f"<li>{lead['name']} ({lead['email']}) - added {lead['date_added']}</li>"
     else:
         html += "<li>No overdue leads. You're all caught up!</li>"
-    html += "</ul><a href='/'>Back to home</a>"
+    html += "</ul>"
+    html += "<a href='/'>Back to home</a> | <a href='/send-emails'>Send Follow-up Emails</a>"
     return html
+
+@app.route("/send-emails")
+def send_emails_route():
+    leads = get_all_leads_db()
+    overdue = check_overdue(leads, days_threshold=7)
+    count = 0
+    if overdue:
+        for lead in overdue:
+            send_email(
+                lead["email"],
+                "Follow up needed",
+                f"Hi {lead['name']}, this lead hasn't been contacted in 7+ days."
+            )
+            count += 1
+        message = f"Sent {count} follow-up email(s)."
+    else:
+        message = "No overdue leads to email."
+    return f"<p>{message}</p><a href='/'>Back to home</a>"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
