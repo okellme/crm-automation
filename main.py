@@ -135,7 +135,17 @@ while True:
         else:
             print("No overdue leads. You're all caught up!")
     elif choice == "4":
-        print("You picked Send follow-up emails")
+            leads = get_all_leads_db()
+            overdue = check_overdue(leads, days_threshold=7)
+            if overdue:
+                for lead in overdue:
+                    send_email(
+                        lead["email"],
+                        "Follow up needed",
+                        f"Hi {lead['name']}, this lead hasn't been contacted in 7+ days."
+                    )
+            else:
+                print("No overdue leads to email.")
     elif choice == "5":
         print("Goodbye!")
         break
