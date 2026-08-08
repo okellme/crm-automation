@@ -7,11 +7,50 @@ from email.message import EmailMessage
 from dotenv import load_dotenv
 import os
 
+import sqlite3
+
+def init_db():
+    conn = sqlite3.connect("leads.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS leads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT,
+            status TEXT,
+            date_added TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def insert_lead_db(name, email, status, date_added):
+    conn = sqlite3.connect("leads.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO leads (name, email, status, date_added) VALUES (?, ?, ?, ?)",
+        (name, email, status, date_added)
+    )
+    conn.commit()
+    conn.close()
+
+def get_all_leads_db():
+    conn = sqlite3.connect("leads.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, email, status, date_added FROM leads")
+    rows = cursor.fetchall()
+    conn.close()
+    leads = []
+    for row in rows:
+        leads.append({"name": row[0], "email": row[1], "status": row[2], "date_added": row[3]})
+    return leads
+
 
 
 load_dotenv()
 
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+init_db()
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 def add_lead(leads, name, email, status):
@@ -34,7 +73,7 @@ def load_leads(filename):
                 leads.append(row)
     return leads
 
-leads = load_leads("leads.csv")
+leads = get_all_leads_db()
 
 print("Currently saved leads:")
 for lead in leads:
@@ -46,14 +85,15 @@ while True:
     status = input("Enter lead status: ")
 
     add_lead(leads, name, email, status)
+    insert_lead_db(name, email, status, datetime.now().strftime("%Y-%m-%d"))
 
     again = input("Add another lead? (yes/no): ")
     if again != "yes":
         break
 
-save_leads(leads, "leads.csv")
 
-print("Leads saved to leads.csv")
+
+print("Leads saved to database")
 
 
 def check_overdue(leads, days_threshold=7):
