@@ -53,6 +53,32 @@ EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 init_db()
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
+def check_overdue(leads, days_threshold=7):
+    today = datetime.now()
+    overdue_leads = []
+
+    for lead in leads:
+        date_added = datetime.strptime(lead["date_added"], "%Y-%m-%d")
+        days_since_added = (today - date_added).days
+
+        if days_since_added >= days_threshold:
+            overdue_leads.append(lead)
+
+    return overdue_leads
+
+def send_email(to_address, subject, body):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = to_address
+    msg.set_content(body)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
+
+    print(f"Email sent to {to_address}")
+
 def add_lead(leads, name, email, status):
     date_added = datetime.now().strftime("%Y-%m-%d")
     new_lead = {"name": name, "email": email, "status": status, "date_added": date_added}
@@ -73,64 +99,27 @@ def load_leads(filename):
                 leads.append(row)
     return leads
 
-leads = get_all_leads_db()
-
-print("Currently saved leads:")
-for lead in leads:
-    print(f"{lead['name']} - {lead['status']} - {lead['date_added']}")
-
 while True:
-    name = input("Enter lead name: ")
-    email = input("Enter lead email: ")
-    status = input("Enter lead status: ")
+    print("\n--- CRM Menu ---")
+    print("1. View all leads")
+    print("2. Add a new lead")
+    print("3. Check overdue leads")
+    print("4. Send follow-up emails")
+    print("5. Quit")
 
-    add_lead(leads, name, email, status)
-    insert_lead_db(name, email, status, datetime.now().strftime("%Y-%m-%d"))
+    choice = input("Choose an option: ")
 
-    again = input("Add another lead? (yes/no): ")
-    if again != "yes":
+    if choice == "1":
+        print("You picked View all leads")
+    elif choice == "2":
+        print("You picked Add a new lead")
+    elif choice == "3":
+        print("You picked Check overdue leads")
+    elif choice == "4":
+        print("You picked Send follow-up emails")
+    elif choice == "5":
+        print("Goodbye!")
         break
+    else:
+        print("Invalid choice, try again.")
 
-
-
-print("Leads saved to database")
-
-
-def check_overdue(leads, days_threshold=7):
-    today = datetime.now()
-    overdue_leads = []
-
-    for lead in leads:
-        date_added = datetime.strptime(lead["date_added"], "%Y-%m-%d")
-        days_since_added = (today - date_added).days
-
-        if days_since_added >= days_threshold:
-            overdue_leads.append(lead)
-
-    return overdue_leads
-
-
-
-overdue = check_overdue(leads, days_threshold=7)
-
-print("\n--- Leads needing follow-up (7+ days old) ---")
-if overdue:
-    for lead in overdue:
-        print(f"{lead['name']} ({lead['email']}) - added {lead['date_added']}")
-else:
-    print("No overdue leads. You're all caught up!")
-    
-def send_email(to_address, subject, body):
-    msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = EMAIL_ADDRESS
-    msg["To"] = to_address
-    msg.set_content(body)
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        smtp.send_message(msg)
-
-    print(f"Email sent to {to_address}")
-
-send_email("salcedojohnpaul503@gmail.com", "Follow up needed", "This lead hasn't been contacted in 7+ days.")
