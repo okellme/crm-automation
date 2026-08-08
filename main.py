@@ -126,7 +126,14 @@ while True:
         insert_lead_db(name, email, status, date_added)
         print(f"Lead '{name}' added.")
     elif choice == "3":
-        print("You picked Check overdue leads")
+        leads = get_all_leads_db()
+        overdue = check_overdue(leads, days_threshold=7)
+        print("\n--- Leads needing follow-up (7+ days old) ---")
+        if overdue:
+            for lead in overdue:
+                print(f"{lead['name']} ({lead['email']}) - added {lead['date_added']}")
+        else:
+            print("No overdue leads. You're all caught up!")
     elif choice == "4":
         print("You picked Send follow-up emails")
     elif choice == "5":
