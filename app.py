@@ -25,6 +25,16 @@ def insert_lead_db(name, email, status, date_added):
     conn.commit()
     conn.close()
 
+def check_overdue(leads, days_threshold=7):
+    today = datetime.now()
+    overdue_leads = []
+    for lead in leads:
+        date_added = datetime.strptime(lead["date_added"], "%Y-%m-%d")
+        days_since_added = (today - date_added).days
+        if days_since_added >= days_threshold:
+            overdue_leads.append(lead)
+    return overdue_leads
+
 @app.route("/")
 def home():
     leads = get_all_leads_db()
@@ -42,6 +52,7 @@ def home():
         <input type="submit" value="Add Lead">
     </form>
     """
+    html += "<br><a href='/overdue'>View Overdue Leads</a>"
     return html
 
 @app.route("/add", methods=["POST"])
@@ -52,6 +63,19 @@ def add_lead_route():
     date_added = datetime.now().strftime("%Y-%m-%d")
     insert_lead_db(name, email, status, date_added)
     return f"<p>Lead '{name}' added! <a href='/'>Go back</a></p>"
+
+@app.route("/overdue")
+def overdue_route():
+    leads = get_all_leads_db()
+    overdue = check_overdue(leads, days_threshold=7)
+    html = "<h1>Overdue Leads (7+ days)</h1><ul>"
+    if overdue:
+        for lead in overdue:
+            html += f"<li>{lead['name']} ({lead['email']}) - added {lead['date_added']}</li>"
+    else:
+        html += "<li>No overdue leads. You're all caught up!</li>"
+    html += "</ul><a href='/'>Back to home</a>"
+    return html
 
 if __name__ == "__main__":
     app.run(debug=True)
