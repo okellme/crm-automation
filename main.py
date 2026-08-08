@@ -109,6 +109,7 @@ while True:
 
     choice = input("Choose an option: ")
 
+
     if choice == "1":
         leads = get_all_leads_db()
         print("\n--- All Leads ---")
@@ -118,7 +119,12 @@ while True:
         else:
             print("No leads yet.")
     elif choice == "2":
-        print("You picked Add a new lead")
+        name = input("Enter lead name: ")
+        email = input("Enter lead email: ")
+        status = input("Enter lead status: ")
+        date_added = datetime.now().strftime("%Y-%m-%d")
+        insert_lead_db(name, email, status, date_added)
+        print(f"Lead '{name}' added.")
     elif choice == "3":
         print("You picked Check overdue leads")
     elif choice == "4":
