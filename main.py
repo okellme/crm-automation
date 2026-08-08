@@ -1,6 +1,18 @@
 import csv
 import os
 from datetime import datetime
+import smtplib
+from email.message import EmailMessage
+
+from dotenv import load_dotenv
+import os
+
+
+
+load_dotenv()
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 def add_lead(leads, name, email, status):
     date_added = datetime.now().strftime("%Y-%m-%d")
@@ -67,3 +79,18 @@ if overdue:
         print(f"{lead['name']} ({lead['email']}) - added {lead['date_added']}")
 else:
     print("No overdue leads. You're all caught up!")
+    
+def send_email(to_address, subject, body):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = EMAIL_ADDRESS
+    msg["To"] = to_address
+    msg.set_content(body)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
+
+    print(f"Email sent to {to_address}")
+
+send_email("salcedojohnpaul503@gmail.com", "Follow up needed", "This lead hasn't been contacted in 7+ days.")
