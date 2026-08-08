@@ -123,8 +123,17 @@ while True:
             while name.strip() == "":
                 print("Name cannot be empty.")
                 name = input("Enter lead name: ")
+
             email = input("Enter lead email: ")
+            while email.strip() == "":
+                print("Email cannot be empty.")
+                email = input("Enter lead email: ")
+
             status = input("Enter lead status: ")
+            while status.strip() == "":
+                print("Status cannot be empty.")
+                status = input("Enter lead status: ")
+
             date_added = datetime.now().strftime("%Y-%m-%d")
             insert_lead_db(name, email, status, date_added)
             print(f"Lead '{name}' added.")
