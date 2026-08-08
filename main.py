@@ -24,6 +24,9 @@ def init_db():
     conn.commit()
     conn.close()
 
+
+
+
 def insert_lead_db(name, email, status, date_added):
     conn = sqlite3.connect("leads.db")
     cursor = conn.cursor()
@@ -73,11 +76,14 @@ def send_email(to_address, subject, body):
     msg["To"] = to_address
     msg.set_content(body)
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        smtp.send_message(msg)
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(msg)
+        print(f"Email sent to {to_address}")
+    except Exception as e:
+        print(f"Failed to send email to {to_address}: {e}")
 
-    print(f"Email sent to {to_address}")
 
 def add_lead(leads, name, email, status):
     date_added = datetime.now().strftime("%Y-%m-%d")
@@ -163,4 +169,3 @@ while True:
         break
     else:
         print("Invalid choice, try again.")
-
